@@ -157,7 +157,8 @@ public class DallasCalls {
 		System.out.println("-uf [seconds]\tWill change the rate at which the data is refreshed or updated. Will not accept less than 30 seconds.");
 		System.out.println("-mc [max character in col]\tWill change max character in entries, may cause some misalignment.");
 		System.out.println("-h\tDisplays this helpful blurb.\n\n");
-		System.out.println("This data is fetched from www.dallasopendata.com");
+		System.out.println("Contains information from Dallas OpenData which is made available under the ODC Attribution License.");
+		System.out.println("https://www.dallasopendata.com/");
 		System.exit(1);
 	}
 }
