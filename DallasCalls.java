@@ -105,7 +105,7 @@ public class DallasCalls {
 				{
 					i++;
 					fields = args[i].split(",");
-					System.out.println("MSG :: Custom User Fields " + args[i+1]);
+					System.out.println("MSG :: Custom User Fields " + args[i]);
 				}
 				else if(args[i].equals("-mc"))
 				{	
