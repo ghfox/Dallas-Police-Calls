@@ -15,7 +15,7 @@ public class PrintData implements Runnable
 	String [] fields = {"priority","date_time","division","location","status","nature_of_call"};
 	boolean dbg = false;
 	String urlString = "https://www.dallasopendata.com/resource/are8-xahz.csv";
-	int updateFrequency = 90000;
+	int updateFrequency = 600000;
 	String maxChar = "25";
 	
 	public PrintData(String [] args)
@@ -128,12 +128,12 @@ public class PrintData implements Runnable
 					{
 						System.out.println("ERROR :: Bad update frequency number, only integers of seconds please.");
 					}
-					if(updateFrequency >= 30000)
+					if(updateFrequency >= 180000)
 						System.out.println("MSG :: Update frquency set " + (updateFrequency/1000) + " seconds");
 					else
 					{
-						updateFrequency = 30000;
-						System.out.println("MSG :: Update frequency too low, set to 30 seconds");
+						updateFrequency = 180000;
+						System.out.println("MSG :: Update frequency too low, set to 180 seconds");
 					}
 				}
 				else if(args[i].equals("-h"))
@@ -152,8 +152,9 @@ public class PrintData implements Runnable
 	{
 		System.out.println("--Help--\n-d \tDisplay debug lines. \n-url [new url] \tUrl for a csv, in theory this could be any csv file (include http://).");
 		System.out.println("-fields [field1,field2,etc]\tWill change the default fields to the ones listed, do not use spaces, order will be as entered.");
-		System.out.println("-uf [seconds]\tWill change the rate at which the data is refreshed or updated. Will not accept less than 30 seconds.");
+		System.out.println("-uf [seconds]\tWill change the rate at which the data is refreshed or updated. Will not accept less than 180 seconds.");
 		System.out.println("-mc [max character in col]\tWill change max character in entries, may cause some misalignment.");
+		System.out.println("-map\tGenerate static map. Will not work with other flags");
 		System.out.println("-h\tDisplays this helpful blurb.\n\n");
 		System.out.println("Contains information from Dallas OpenData which is made available under the ODC Attribution License.");
 		System.out.println("https://www.dallasopendata.com/");
