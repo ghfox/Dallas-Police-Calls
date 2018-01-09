@@ -36,7 +36,6 @@ public class DallasCalls {
 	
 	
 	public static void main (String args[])  {
-		
 		frame = new JFrame();
 		frame.setTitle("Map");
 		frame.setSize(W_WIDTH,W_HEIGHT);

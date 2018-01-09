@@ -11,8 +11,6 @@ import java.lang.Runnable;
 
 public class PrintData implements Runnable
 {
-	
-	
 	boolean dbg = false;
 	
 	String S_URL = "https://www.dallasopendata.com/resource/are8-xahz.csv";
@@ -84,6 +82,7 @@ public class PrintData implements Runnable
 	
 		for(int i = 0; i < DATA.size(); i++)
 		{
+			System.out.print(" " + (char)(65+i) + " ");
 			String [] line = DATA.get(i).split(",");
 			processPrintLine(line);
 		}
@@ -119,7 +118,7 @@ public class PrintData implements Runnable
 		if(I_LOC == -1 || I_BLO == -1 || I_PRI == -1)
 		{
 				System.out.println("ERROR :: REQUIRED FIELDS NOT FOUND \t LOC,BLO,PRI " + I_LOC + "," + I_BLO + "," + I_PRI);
-				System.exit(10);
+				System.exit(2);
 		}
 		if(dbg){System.out.println("DBG :: REQUIRED FIELDS \t LOC,BLO,PRI " + I_LOC + "," + I_BLO + "," + I_PRI);}
 	}
