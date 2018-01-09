@@ -2,6 +2,7 @@ package dallaspolicecalls;
 
 import java.io.IOException;
 import java.util.Scanner;
+import java.util.ArrayList;
 import java.net.URL;
 import java.net.MalformedURLException;
 import java.lang.Thread;
@@ -11,22 +12,33 @@ import java.lang.Runnable;
 public class PrintData implements Runnable
 {
 	
-	int [] relevantThings;
-	String [] fields = {"priority","date_time","division","location","status","nature_of_call"};
+	
 	boolean dbg = false;
-	String urlString = "https://www.dallasopendata.com/resource/are8-xahz.csv";
-	int updateFrequency = 600000;
+	
+	String S_URL = "https://www.dallasopendata.com/resource/are8-xahz.csv";
+	int [] PF_INTS;
+	String [] PRINT_FIELDS = {"priority","date_time","division","block","location","nature_of_call"};
+	int UPDATE_FREQUENCY = 600000;
+	int I_LOC = -1, I_PRI = -1, I_BLO = -1;
+	final String S_LOC = "location", S_PRI = "priority", S_BLO = "block";
+	ArrayList<String> DATA;
+	String [] FL_TOKENS;
+	
 	String maxChar = "25";
 	
 	public PrintData(String [] args)
 	{
 		checkArgs(args);
+		try{ updateData(); }
+		catch (Exception e) {
+			System.out.println("ERROR :: updateData() failed");
+		}
 	}
 	
 	public void run() {
 		try {
 			printData();
-			Thread.sleep(updateFrequency);
+			Thread.sleep(UPDATE_FREQUENCY);
 		} catch (Exception e) {
 			System.out.println("MSG :: Thread interrupted, refresh called");
 			run();
@@ -36,53 +48,75 @@ public class PrintData implements Runnable
 		run();
 	}
 	
-	public void printData() throws MalformedURLException, IOException, InterruptedException
+	public void updateData() throws MalformedURLException, IOException
 	{
-		URL url = new URL(urlString);
+		DATA = new ArrayList<String>();
+		URL url = new URL(S_URL);
 		Scanner s = new Scanner(url.openStream());
 		String firstLine = s.nextLine();
 		firstLine = firstLine.replaceAll("\"","");
 		if(dbg) {System.out.println("DBG:: FIRSTLINE " + firstLine);}
-		String [] flTokens = firstLine.split(",");	
-		
-		findTheFields(flTokens);
-		
-		for(int i = 0; i < fields.length; i++)
+		FL_TOKENS = firstLine.split(",");	
+		findTheFields();
+		while(s.hasNext())
+			DATA.add(s.nextLine());
+	}
+	
+	public void printData()
+	{
+		for(int i = 0; i < PRINT_FIELDS.length; i++)
 		{
-			if(relevantThings[i] != -1)
-				System.out.printf("%-25." + maxChar + "s",fields[i]);
+			if(PF_INTS[i] != -1)
+				System.out.printf("%-25." + maxChar + "s",PRINT_FIELDS[i]);
 		}
 		System.out.println();
 	
-		while(s.hasNext())
+		for(int i = 0; i < DATA.size(); i++)
 		{
-			String [] line = s.nextLine().split(",");
-			processLine(line);
+			String [] line = DATA.get(i).split(",");
+			processPrintLine(line);
 		}
 		System.out.println("\n\nReady for input, enter new flags, quit, or wait for refresh.");
 		
 	}
 	
-	public void findTheFields(String [] flTokens)
+	public void findTheFields()
 	{
-		relevantThings = new int [fields.length];
-		for(int i = 0; i < fields.length; i++)
+		PF_INTS = new int [PRINT_FIELDS.length];
+		for(int i = 0; i < PRINT_FIELDS.length; i++)
+			PF_INTS[i] = -1;
+			
+		for(int i = 0; i < FL_TOKENS.length; i++)
 		{
-			relevantThings[i] = -1;
-			for(int j = 0; j < flTokens.length; j++)
+			switch(FL_TOKENS[i])
 			{
-				if(fields[i].equals(flTokens[j]))
-					relevantThings[i] = j;
+				case S_PRI : {I_PRI = i; break; }
+				case S_LOC : {I_LOC = i; break; }
+				case S_BLO : {I_BLO = i; break; }
 			}
-			if(relevantThings[i] == -1)
-				System.out.println("ERROR :: Field \"" + fields[i] + "\" was not found. Will be excluded");
+			for(int j = 0; j < PF_INTS.length; j++)
+			{
+				if(PRINT_FIELDS[j].equals(FL_TOKENS[i]))
+					PF_INTS[j] = i;
+			}
 		}
+		for(int i = 0; i < PF_INTS.length; i++)
+		{
+			if(PF_INTS[i] == -1)
+				System.out.println("ERROR :: Field \"" + PRINT_FIELDS[i] + "\" was not found. Will be excluded");
+		}
+		if(I_LOC == -1 || I_BLO == -1 || I_PRI == -1)
+		{
+				System.out.println("ERROR :: REQUIRED FIELDS NOT FOUND \t LOC,BLO,PRI " + I_LOC + "," + I_BLO + "," + I_PRI);
+				System.exit(10);
+		}
+		if(dbg){System.out.println("DBG :: REQUIRED FIELDS \t LOC,BLO,PRI " + I_LOC + "," + I_BLO + "," + I_PRI);}
 	}
 	
-	public void processLine(String [] line){
-		for(int i = 0; i < relevantThings.length; i++)
-			if(relevantThings[i] != -1)
-				System.out.printf("%-25." + maxChar + "s", line[relevantThings[i]].replaceAll("\"",""));
+	public void processPrintLine(String [] line){
+		for(int i = 0; i < PF_INTS.length; i++)
+			if(PF_INTS[i] != -1)
+				System.out.printf("%-25." + maxChar + "s", line[PF_INTS[i]].replaceAll("\"",""));
 		System.out.println();
 	}
 	
@@ -97,13 +131,13 @@ public class PrintData implements Runnable
 				else if(args[i].equals("-url"))
 				{
 					i++;
-					urlString = args[i];
-					System.out.println("MSG :: Custom User URL " + urlString);
+					S_URL = args[i];
+					System.out.println("MSG :: Custom User URL " + S_URL);
 				}
 				else if(args[i].equals("-fields"))
 				{
 					i++;
-					fields = args[i].split(",");
+					PRINT_FIELDS = args[i].split(",");
 					System.out.println("MSG :: Custom User Fields " + args[i]);
 				}
 				else if(args[i].equals("-mc"))
@@ -122,17 +156,17 @@ public class PrintData implements Runnable
 					try
 					{
 						i++;
-						updateFrequency = 1000 * Integer.parseInt(args[i]);
+						UPDATE_FREQUENCY = 1000 * Integer.parseInt(args[i]);
 					} 
 					catch (Exception e) 
 					{
 						System.out.println("ERROR :: Bad update frequency number, only integers of seconds please.");
 					}
-					if(updateFrequency >= 180000)
-						System.out.println("MSG :: Update frquency set " + (updateFrequency/1000) + " seconds");
+					if(UPDATE_FREQUENCY >= 180000)
+						System.out.println("MSG :: Update frquency set " + (UPDATE_FREQUENCY/1000) + " seconds");
 					else
 					{
-						updateFrequency = 180000;
+						UPDATE_FREQUENCY = 180000;
 						System.out.println("MSG :: Update frequency too low, set to 180 seconds");
 					}
 				}
