@@ -28,48 +28,50 @@ import java.io.Console;
 import javax.swing.JFrame;
 
 public class DallasCalls {
-	
-	static JFrame frame;
-	static MapGen map;
-	static int W_HEIGHT = 512;
-	static int W_WIDTH = 512;
-	
-	
-	public static void main (String args[])  {
-		frame = new JFrame();
-		frame.setTitle("Map");
-		frame.setSize(W_WIDTH,W_HEIGHT);
-		frame.setVisible(false);
-		
-		map = new MapGen();
-		frame.add(map);
-		
-		PrintData pd = new PrintData(args);
-		Thread dataThread = new Thread(pd);
-		dataThread.start();
-		
-		Console console = System.console();
-		
-		while(true)
-		{
-			if (console == null)
-				System.exit(666);
-			String s = console.readLine();
-			if(s.equals("quit"))
-				System.exit(1);
-			else if (s.equals("-map"))
-			{
-				map = new MapGen(pd.getMapData());
-				frame.add(map);
-				frame.setVisible(true);
-			}
-			else
-			{
-				pd.checkArgs(s.split(" "));
-				dataThread.interrupt();
-			}
-		}
-	}
+    
+    static JFrame frame;
+    static MapGen map;
+    static int W_HEIGHT = 512;
+    static int W_WIDTH = 512;
+    
+    
+    public static void main (String args[])  {
+        frame = new JFrame();
+        frame.setTitle("Map");
+        frame.setSize(W_WIDTH,W_HEIGHT);
+        frame.setVisible(false);
+        
+        map = new MapGen();
+        frame.add(map);
+        
+        PrintData pd = new PrintData(args);
+        Thread dataThread = new Thread(pd);
+        dataThread.start();
+        
+        Console console = System.console();
+        
+        while(true)
+        {
+            if (console == null)
+                System.exit(666);
+            String s = console.readLine();
+            if(s.equals("quit"))
+                System.exit(1);
+            else if (s.equals("-map"))
+            {
+                frame.remove(map);
+                map = new MapGen(pd.getMapData());
+                frame.add(map);
+                frame.repaint();
+                frame.setVisible(true);
+            }
+            else
+            {
+                pd.checkArgs(s.split(" "));
+                dataThread.interrupt();
+            }
+        }
+    }
 }
 
 

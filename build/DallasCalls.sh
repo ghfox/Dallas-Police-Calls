@@ -1,1 +1,1 @@
-java dallaspolicecalls/DallasCalls -fields date_time,division,location,nature_of_call
+java dallaspolicecalls/DallasCalls -fields nature_of_call,division,location,date_time,priority
