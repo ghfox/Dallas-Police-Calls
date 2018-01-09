@@ -20,8 +20,9 @@ public class PrintData implements Runnable
 	String [] PRINT_FIELDS = {"priority","date_time","division","block","location","nature_of_call"};
 	int UPDATE_FREQUENCY = 600000;
 	int I_LOC = -1, I_PRI = -1, I_BLO = -1;
-	final String S_LOC = "location", S_PRI = "priority", S_BLO = "block";
+	final String S_PRI = "priority", S_BLO = "block", S_LOC = "location";
 	ArrayList<String> DATA;
+	String [][] MAP_DATA;
 	String [] FL_TOKENS;
 	
 	String maxChar = "25";
@@ -29,14 +30,11 @@ public class PrintData implements Runnable
 	public PrintData(String [] args)
 	{
 		checkArgs(args);
-		try{ updateData(); }
-		catch (Exception e) {
-			System.out.println("ERROR :: updateData() failed");
-		}
 	}
 	
 	public void run() {
 		try {
+			updateData();
 			printData();
 			Thread.sleep(UPDATE_FREQUENCY);
 		} catch (Exception e) {
@@ -46,6 +44,19 @@ public class PrintData implements Runnable
 		
 		System.out.println("MSG :: Refresh");
 		run();
+	}
+	public String [][] getMapData()
+	{
+		MAP_DATA = new String[DATA.size()][3];
+		for(int i = 0; i < DATA.size(); i++)
+		{
+			//if(dbg){System.out.println("DGB :: WORKING IN LINE "+ i + " " + DATA.get(i));}
+			String[] tokens = DATA.get(i).split(",");
+			MAP_DATA[i][0] = tokens[I_PRI];
+			MAP_DATA[i][1] = tokens[I_BLO];
+			MAP_DATA[i][2] = tokens[I_LOC];
+		}
+		return MAP_DATA;
 	}
 	
 	public void updateData() throws MalformedURLException, IOException
@@ -59,7 +70,7 @@ public class PrintData implements Runnable
 		FL_TOKENS = firstLine.split(",");	
 		findTheFields();
 		while(s.hasNext())
-			DATA.add(s.nextLine());
+			DATA.add(s.nextLine().replaceAll("\"",""));
 	}
 	
 	public void printData()

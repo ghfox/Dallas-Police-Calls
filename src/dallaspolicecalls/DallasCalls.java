@@ -60,6 +60,8 @@ public class DallasCalls {
 				System.exit(1);
 			else if (s.equals("-map"))
 			{
+				map = new MapGen(pd.getMapData());
+				frame.add(map);
 				frame.setVisible(true);
 			}
 			else
